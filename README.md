@@ -14,7 +14,7 @@ The contents of this repository are summarized below.
 	* nordic_nRF52: Contains the project files for building and flashing the firmware for the Nordic nRF52 BLE chip used for wireless communication with the PAWS LE smartphone application.
 	* pcb: Contains the pcb schematics, designed using Altium Circuitmaker, for the PAWS LE embedded platform. The platform uses a custom-build ASIC for relative delay extraction + the Nordic nRF52 BLE chip for transmission to the smartphone.
 
-To learn more about PAWS, please visit our [project page](icsl.ee.columbia.edu/projects/seus), or contact us at: [stephen.xia@columbia.edu](stephen.xia@columbia.edu). 	 
+To learn more about PAWS, please visit our [project page](http://icsl.ee.columbia.edu/projects/seus), or contact us at: [stephen.xia@columbia.edu](stephen.xia@columbia.edu). 	 
 	
 This repository is part of the **Pedestrian Audio Wearable System (PAWS)** project of the **Intelligent and Connected Systems Lab (ICSL)**, Columbia University.
-For more information about our latest projects, please visit our [group website](icsl.ee.columbia.edu).
+For more information about our latest projects, please visit our [group website](http://icsl.ee.columbia.edu).
