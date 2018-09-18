@@ -1,0 +1,1001 @@
+/**
+  ******************************************************************************
+  * @file    Project/STM32F4xx_StdPeriph_Templates/main.c 
+  * @author  MCD Application Team
+  * @version V1.7.1
+  * @date    20-May-2016
+  * @brief   Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; COPYRIGHT 2016 STMicroelectronics</center></h2>
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+
+/* Includes ------------------------------------------------------------------*/
+#include "main.h"
+
+/** @addtogroup Template_Project
+  * @{
+  */ 
+
+/* Private typedef -----------------------------------------------------------*/
+#define BUFFER_SIZE 8000
+#define SAMPLING_FREQ 8000
+
+#define LEDn 4
+#define LED1_PIN                         GPIO_Pin_5
+#define LED1_GPIO_PORT                   GPIOA
+#define LED1_GPIO_CLK                    RCC_AHB1Periph_GPIOA  
+  
+#define LED2_PIN                         GPIO_Pin_8
+#define LED2_GPIO_PORT                   GPIOG
+#define LED2_GPIO_CLK                    RCC_AHB1Periph_GPIOG  
+  
+#define LED3_PIN                         GPIO_Pin_9
+#define LED3_GPIO_PORT                   GPIOI
+#define LED3_GPIO_CLK                    RCC_AHB1Periph_GPIOI  
+  
+#define LED4_PIN                         GPIO_Pin_7
+#define LED4_GPIO_PORT                   GPIOC
+#define LED4_GPIO_CLK                    RCC_AHB1Periph_GPIOC
+
+// ADC defines
+#define NUM_CONVERSIONS 4
+
+#define CH1_ADC_CHx ADC_Channel_0
+#define CH1_GPIO GPIOA
+#define CH1_GPIO_PINx GPIO_Pin_0
+#define CH1_ADCx ADC1
+
+#define CH2_ADC_CHx ADC_Channel_1
+#define CH2_GPIO GPIOA
+#define CH2_GPIO_PINx GPIO_Pin_1
+#define CH2_ADCx ADC1
+
+#define CH3_ADC_CHx ADC_Channel_4
+#define CH3_GPIO GPIOA
+#define CH3_GPIO_PINx GPIO_Pin_4
+#define CH3_ADCx ADC1
+
+#define CH4_ADC_CHx ADC_Channel_8
+#define CH4_GPIO GPIOB
+#define CH4_GPIO_PINx GPIO_Pin_0
+#define CH4_ADCx ADC1
+
+/** @defgroup UART_Word_Length UART Word Length
+  * @{
+  */
+#define UART_WORDLENGTH_8B                  ((uint32_t)0x00000000U)
+#define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
+/**
+  * @}
+  */ 
+
+/** @defgroup UART_Stop_Bits UART Number of Stop Bits
+  * @{
+  */
+#define UART_STOPBITS_1                     ((uint32_t)0x00000000U)
+#define UART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
+/**
+  * @}
+  */ 
+
+/** @defgroup UART_Parity UART Parity
+  * @{
+  */ 
+#define UART_PARITY_NONE                    ((uint32_t)0x00000000U)
+#define UART_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
+#define UART_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) 
+/**
+  * @}
+  */ 
+
+/** @defgroup UART_Hardware_Flow_Control UART Hardware Flow Control
+  * @{
+  */ 
+#define UART_HWCONTROL_NONE                  ((uint32_t)0x00000000U)
+#define UART_HWCONTROL_RTS                   ((uint32_t)USART_CR3_RTSE)
+#define UART_HWCONTROL_CTS                   ((uint32_t)USART_CR3_CTSE)
+#define UART_HWCONTROL_RTS_CTS               ((uint32_t)(USART_CR3_RTSE | USART_CR3_CTSE))
+/**
+  * @}
+  */
+
+/** @defgroup UART_Mode UART Transfer Mode
+  * @{
+  */ 
+#define UART_MODE_RX                        ((uint32_t)USART_CR1_RE)
+#define UART_MODE_TX                        ((uint32_t)USART_CR1_TE)
+#define UART_MODE_TX_RX                     ((uint32_t)(USART_CR1_TE |USART_CR1_RE))
+/**
+  * @}
+  */
+	
+	/** @defgroup UART_Over_Sampling UART Over Sampling
+  * @{
+  */
+#define UART_OVERSAMPLING_16                    ((uint32_t)0x00000000U)
+#define UART_OVERSAMPLING_8                     ((uint32_t)USART_CR1_OVER8)
+/**
+  * @}
+  */
+	
+/** @defgroup UART_Error_Code UART Error Code
+  * @brief    UART Error Code 
+  * @{
+  */ 
+#define HAL_UART_ERROR_NONE         ((uint32_t)0x00000000U)   /*!< No error            */
+#define HAL_UART_ERROR_PE           ((uint32_t)0x00000001U)   /*!< Parity error        */
+#define HAL_UART_ERROR_NE           ((uint32_t)0x00000002U)   /*!< Noise error         */
+#define HAL_UART_ERROR_FE           ((uint32_t)0x00000004U)   /*!< Frame error         */
+#define HAL_UART_ERROR_ORE          ((uint32_t)0x00000008U)   /*!< Overrun error       */
+#define HAL_UART_ERROR_DMA          ((uint32_t)0x00000010U)   /*!< DMA transfer error  */
+/**
+  * @}
+  */
+/* Private define ------------------------------------------------------------*/
+
+#define UNUSED(x) ((void)(x))
+#define __HAL_UART_DISABLE(__HANDLE__)              ((__HANDLE__)->Instance->CR1 &=  ~USART_CR1_UE)
+#define __HAL_UART_ENABLE(__HANDLE__)               ((__HANDLE__)->Instance->CR1 |=  USART_CR1_UE)
+#define UART_BRR_SAMPLING8(_PCLK_, _BAUD_)             (((UART_DIVMANT_SAMPLING8((_PCLK_), (_BAUD_)) << 4U) + \
+                                                        ((UART_DIVFRAQ_SAMPLING8((_PCLK_), (_BAUD_)) & 0xF8U) << 1U)) + \
+                                                        (UART_DIVFRAQ_SAMPLING8((_PCLK_), (_BAUD_)) & 0x07U))
+#define POSITION_VAL(VAL)     (__CLZ(__RBIT(VAL))) 
+#define UART_DIV_SAMPLING16(_PCLK_, _BAUD_)            (((_PCLK_)*25U)/(4U*(_BAUD_)))
+#define UART_DIVMANT_SAMPLING16(_PCLK_, _BAUD_)        (UART_DIV_SAMPLING16((_PCLK_), (_BAUD_))/100U)
+#define UART_DIVFRAQ_SAMPLING16(_PCLK_, _BAUD_)        (((UART_DIV_SAMPLING16((_PCLK_), (_BAUD_)) - (UART_DIVMANT_SAMPLING16((_PCLK_), (_BAUD_)) * 100U)) * 16U + 50U) / 100U)
+/* UART BRR = mantissa + overflow + fraction
+            = (UART DIVMANT << 4) + (UART DIVFRAQ & 0xF0) + (UART DIVFRAQ & 0x0FU) */
+#define UART_BRR_SAMPLING16(_PCLK_, _BAUD_)            (((UART_DIVMANT_SAMPLING16((_PCLK_), (_BAUD_)) << 4U) + \
+                                                        (UART_DIVFRAQ_SAMPLING16((_PCLK_), (_BAUD_)) & 0xF0U)) + \
+                                                        (UART_DIVFRAQ_SAMPLING16((_PCLK_), (_BAUD_)) & 0x0FU))
+
+#define UART_DIV_SAMPLING8(_PCLK_, _BAUD_)             (((_PCLK_)*25U)/(2U*(_BAUD_)))
+#define UART_DIVMANT_SAMPLING8(_PCLK_, _BAUD_)         (UART_DIV_SAMPLING8((_PCLK_), (_BAUD_))/100U)
+#define UART_DIVFRAQ_SAMPLING8(_PCLK_, _BAUD_)         (((UART_DIV_SAMPLING8((_PCLK_), (_BAUD_)) - (UART_DIVMANT_SAMPLING8((_PCLK_), (_BAUD_)) * 100U)) * 8U + 50U) / 100U)
+
+ /* @{
+  */    
+const uint8_t APBAHBPrescTable[16] = {0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U, 1U, 2U, 3U, 4U, 6U, 7U, 8U, 9U};
+/**
+  * @}
+  */
+
+typedef enum 
+{
+  LED1 = 0,
+  LED2 = 1,
+  LED3 = 2,
+  LED4 = 3
+} Led_TypeDef;
+
+GPIO_TypeDef* GPIO_PORT[LEDn] = {LED1_GPIO_PORT, LED2_GPIO_PORT, LED3_GPIO_PORT,
+                                 LED4_GPIO_PORT};
+const uint16_t GPIO_PIN[LEDn] = {LED1_PIN, LED2_PIN, LED3_PIN,
+                                 LED4_PIN};
+const uint32_t GPIO_CLK[LEDn] = {LED1_GPIO_CLK, LED2_GPIO_CLK, LED3_GPIO_CLK,
+                                 LED4_GPIO_CLK};
+
+/** 
+  * @brief  HAL Status structures definition  
+  */  
+typedef enum 
+{
+  HAL_OK       = 0x00U,
+  HAL_ERROR    = 0x01U,
+  HAL_BUSY     = 0x02U,
+  HAL_TIMEOUT  = 0x03U
+} HAL_StatusTypeDef;
+
+typedef enum 
+{
+  HAL_UNLOCKED = 0x00U,
+  HAL_LOCKED   = 0x01U  
+} HAL_LockTypeDef;
+
+typedef enum
+{
+  HAL_DMA_STATE_RESET             = 0x00U,  /*!< DMA not yet initialized or disabled */
+  HAL_DMA_STATE_READY             = 0x01U,  /*!< DMA initialized and ready for use   */
+  HAL_DMA_STATE_BUSY              = 0x02U,  /*!< DMA process is ongoing              */
+  HAL_DMA_STATE_TIMEOUT           = 0x03U,  /*!< DMA timeout state                   */
+  HAL_DMA_STATE_ERROR             = 0x04U,  /*!< DMA error state                     */
+  HAL_DMA_STATE_ABORT             = 0x05U,  /*!< DMA Abort state                     */
+}HAL_DMA_StateTypeDef;
+																 
+/** 
+  * @brief  DMA handle Structure definition
+  */
+typedef struct __DMA_HandleTypeDef
+{
+  DMA_Stream_TypeDef         *Instance;                                                    /*!< Register base address                  */
+
+  DMA_InitTypeDef            Init;                                                         /*!< DMA communication parameters           */ 
+
+  HAL_LockTypeDef            Lock;                                                         /*!< DMA locking object                     */  
+
+  __IO HAL_DMA_StateTypeDef  State;                                                        /*!< DMA transfer state                     */
+
+  void                       *Parent;                                                      /*!< Parent object state                    */ 
+
+  void                       (* XferCpltCallback)( struct __DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback         */
+
+  void                       (* XferHalfCpltCallback)( struct __DMA_HandleTypeDef * hdma); /*!< DMA Half transfer complete callback    */
+
+  void                       (* XferM1CpltCallback)( struct __DMA_HandleTypeDef * hdma);   /*!< DMA transfer complete Memory1 callback */
+  
+  void                       (* XferM1HalfCpltCallback)( struct __DMA_HandleTypeDef * hdma);   /*!< DMA transfer Half complete Memory1 callback */
+  
+  void                       (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
+  
+  void                       (* XferAbortCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer Abort callback            */  
+
+ __IO uint32_t               ErrorCode;                                                    /*!< DMA Error code                          */
+  
+ uint32_t                    StreamBaseAddress;                                            /*!< DMA Stream Base Address                */
+
+ uint32_t                    StreamIndex;                                                  /*!< DMA Stream Index                       */
+ 
+}DMA_HandleTypeDef;
+
+/** 
+  * @brief UART Init Structure definition  
+  */ 
+typedef struct
+{
+  uint32_t BaudRate;                  /*!< This member configures the UART communication baud rate.
+                                           The baud rate is computed using the following formula:
+                                           - IntegerDivider = ((PCLKx) / (8 * (OVR8+1) * (huart->Init.BaudRate)))
+                                           - FractionalDivider = ((IntegerDivider - ((uint32_t) IntegerDivider)) * 8 * (OVR8+1)) + 0.5 
+                                           Where OVR8 is the "oversampling by 8 mode" configuration bit in the CR1 register. */
+
+  uint32_t WordLength;                /*!< Specifies the number of data bits transmitted or received in a frame.
+                                           This parameter can be a value of @ref UART_Word_Length */
+
+  uint32_t StopBits;                  /*!< Specifies the number of stop bits transmitted.
+                                           This parameter can be a value of @ref UART_Stop_Bits */
+
+  uint32_t Parity;                    /*!< Specifies the parity mode.
+                                           This parameter can be a value of @ref UART_Parity
+                                           @note When parity is enabled, the computed parity is inserted
+                                                 at the MSB position of the transmitted data (9th bit when
+                                                 the word length is set to 9 data bits; 8th bit when the
+                                                 word length is set to 8 data bits). */
+ 
+  uint32_t Mode;                      /*!< Specifies whether the Receive or Transmit mode is enabled or disabled.
+                                           This parameter can be a value of @ref UART_Mode */
+
+  uint32_t HwFlowCtl;                 /*!< Specifies whether the hardware flow control mode is enabled
+                                           or disabled.
+                                           This parameter can be a value of @ref UART_Hardware_Flow_Control */
+  
+  uint32_t OverSampling;              /*!< Specifies whether the Over sampling 8 is enabled or disabled, to achieve higher speed (up to fPCLK/8).
+                                           This parameter can be a value of @ref UART_Over_Sampling */ 
+}UART_InitTypeDef;
+
+/** 
+  * @brief HAL UART State structures definition  
+  * @note  HAL UART State value is a combination of 2 different substates: gState and RxState.
+  *        - gState contains UART state information related to global Handle management 
+  *          and also information related to Tx operations.
+  *          gState value coding follow below described bitmap :
+  *          b7-b6  Error information 
+  *             00 : No Error
+  *             01 : (Not Used)
+  *             10 : Timeout
+  *             11 : Error
+  *          b5     IP initilisation status
+  *             0  : Reset (IP not initialized)
+  *             1  : Init done (IP not initialized. HAL UART Init function already called)
+  *          b4-b3  (not used)
+  *             xx : Should be set to 00
+  *          b2     Intrinsic process state
+  *             0  : Ready
+  *             1  : Busy (IP busy with some configuration or internal operations)
+  *          b1     (not used)
+  *             x  : Should be set to 0
+  *          b0     Tx state
+  *             0  : Ready (no Tx operation ongoing)
+  *             1  : Busy (Tx operation ongoing)
+  *        - RxState contains information related to Rx operations.
+  *          RxState value coding follow below described bitmap :
+  *          b7-b6  (not used)
+  *             xx : Should be set to 00
+  *          b5     IP initilisation status
+  *             0  : Reset (IP not initialized)
+  *             1  : Init done (IP not initialized)
+  *          b4-b2  (not used)
+  *            xxx : Should be set to 000
+  *          b1     Rx state
+  *             0  : Ready (no Rx operation ongoing)
+  *             1  : Busy (Rx operation ongoing)
+  *          b0     (not used)
+  *             x  : Should be set to 0.
+  */ 
+typedef enum
+{
+  HAL_UART_STATE_RESET             = 0x00U,    /*!< Peripheral is not yet Initialized 
+                                                   Value is allowed for gState and RxState */
+  HAL_UART_STATE_READY             = 0x20U,    /*!< Peripheral Initialized and ready for use
+                                                   Value is allowed for gState and RxState */
+  HAL_UART_STATE_BUSY              = 0x24U,    /*!< an internal process is ongoing
+                                                   Value is allowed for gState only */
+  HAL_UART_STATE_BUSY_TX           = 0x21U,    /*!< Data Transmission process is ongoing 
+                                                   Value is allowed for gState only */
+  HAL_UART_STATE_BUSY_RX           = 0x22U,    /*!< Data Reception process is ongoing
+                                                   Value is allowed for RxState only */
+  HAL_UART_STATE_BUSY_TX_RX        = 0x23U,    /*!< Data Transmission and Reception process is ongoing 
+                                                   Not to be used for neither gState nor RxState.
+                                                   Value is result of combination (Or) between gState and RxState values */
+  HAL_UART_STATE_TIMEOUT           = 0xA0U,    /*!< Timeout state    
+                                                   Value is allowed for gState only */
+  HAL_UART_STATE_ERROR             = 0xE0U     /*!< Error   
+                                                   Value is allowed for gState only */
+}HAL_UART_StateTypeDef;
+
+/** 
+  * @brief  UART handle Structure definition  
+  */  
+typedef struct
+{
+  USART_TypeDef                 *Instance;        /*!< UART registers base address        */
+  
+  UART_InitTypeDef              Init;             /*!< UART communication parameters      */
+  
+  uint8_t                       *pTxBuffPtr;      /*!< Pointer to UART Tx transfer Buffer */
+  
+  uint16_t                      TxXferSize;       /*!< UART Tx Transfer size              */
+  
+  uint16_t                      TxXferCount;      /*!< UART Tx Transfer Counter           */
+  
+  uint8_t                       *pRxBuffPtr;      /*!< Pointer to UART Rx transfer Buffer */
+  
+  uint16_t                      RxXferSize;       /*!< UART Rx Transfer size              */
+  
+  uint16_t                      RxXferCount;      /*!< UART Rx Transfer Counter           */  
+  
+  DMA_HandleTypeDef             *hdmatx;          /*!< UART Tx DMA Handle parameters      */
+    
+  DMA_HandleTypeDef             *hdmarx;          /*!< UART Rx DMA Handle parameters      */
+  
+  HAL_LockTypeDef               Lock;             /*!< Locking object                     */
+
+  __IO HAL_UART_StateTypeDef    gState;           /*!< UART state information related to global Handle management 
+                                                       and also related to Tx operations.
+                                                       This parameter can be a value of @ref HAL_UART_StateTypeDef */
+  
+  __IO HAL_UART_StateTypeDef    RxState;          /*!< UART state information related to Rx operations.
+                                                       This parameter can be a value of @ref HAL_UART_StateTypeDef */
+  
+  __IO uint32_t                 ErrorCode;        /*!< UART Error code                    */
+
+}UART_HandleTypeDef;
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+
+static __IO uint32_t uwTimingDelay;
+RCC_ClocksTypeDef RCC_Clocks;
+
+GPIO_InitTypeDef 		GPIO_InitStructure_ADC_ch1;
+GPIO_InitTypeDef 		GPIO_InitStructure_ADC_ch2;
+GPIO_InitTypeDef 		GPIO_InitStructure_ADC_ch3;
+GPIO_InitTypeDef 		GPIO_InitStructure_ADC_ch4;
+GPIO_InitTypeDef 		GPIO_InitStructure_UART;
+ADC_InitTypeDef 		ADC_InitStructure;
+ADC_CommonInitTypeDef 	ADC_CommonInitStructure;
+DMA_InitTypeDef 		DMA_InitStructure;
+NVIC_InitTypeDef NVIC_InitStructure;
+TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+
+uint16_t ADC_buffer[BUFFER_SIZE];
+	
+UART_HandleTypeDef UartHandle;
+
+
+/* Private function prototypes -----------------------------------------------*/
+static void Delay(__IO uint32_t nTime);
+																 
+#ifdef __GNUC__
+  /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+     set to 'Yes') calls __io_putchar() */
+  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+
+/* Private functions ---------------------------------------------------------*/
+
+/**
+  * @brief  UART MSP Init.
+  * @param  huart: pointer to a UART_HandleTypeDef structure that contains
+  *                the configuration information for the specified UART module.
+  * @retval None
+  */
+ __weak void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+{
+   /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+  /* NOTE: This function Should not be modified, when the callback is needed,
+           the HAL_UART_MspInit could be implemented in the user file
+   */ 
+}
+
+uint32_t HAL_RCC_GetHCLKFreq(void)
+{
+  return SystemCoreClock;
+}
+
+/**
+  * @brief  Returns the PCLK1 frequency     
+  * @note   Each time PCLK1 changes, this function must be called to update the
+  *         right PCLK1 value. Otherwise, any configuration based on this function will be incorrect.
+  * @retval PCLK1 frequency
+  */
+uint32_t HAL_RCC_GetPCLK1Freq(void)
+{  
+  /* Get HCLK source and Compute PCLK1 frequency ---------------------------*/
+  return (HAL_RCC_GetHCLKFreq() >> APBAHBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE1)>> POSITION_VAL(RCC_CFGR_PPRE1)]);
+}
+
+/**
+  * @brief  Returns the PCLK2 frequency     
+  * @note   Each time PCLK2 changes, this function must be called to update the
+  *         right PCLK2 value. Otherwise, any configuration based on this function will be incorrect.
+  * @retval PCLK2 frequency
+  */
+uint32_t HAL_RCC_GetPCLK2Freq(void)
+{
+  /* Get HCLK source and Compute PCLK2 frequency ---------------------------*/
+  return (HAL_RCC_GetHCLKFreq()>> APBAHBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE2)>> POSITION_VAL(RCC_CFGR_PPRE2)]);
+} 
+
+/**
+  * @brief  Configures the UART peripheral. 
+  * @param  huart: pointer to a UART_HandleTypeDef structure that contains
+  *                the configuration information for the specified UART module.
+  * @retval None
+  */
+static void UART_SetConfig(UART_HandleTypeDef *huart)
+{
+  uint32_t tmpreg = 0x00U;
+  
+  /* Check the parameters */
+  assert_param(IS_UART_BAUDRATE(huart->Init.BaudRate));
+  assert_param(IS_UART_STOPBITS(huart->Init.StopBits));
+  assert_param(IS_UART_PARITY(huart->Init.Parity));
+  assert_param(IS_UART_MODE(huart->Init.Mode));
+
+  /*-------------------------- USART CR2 Configuration -----------------------*/
+  tmpreg = huart->Instance->CR2;
+
+  /* Clear STOP[13:12] bits */
+  tmpreg &= (uint32_t)~((uint32_t)USART_CR2_STOP);
+
+  /* Configure the UART Stop Bits: Set STOP[13:12] bits according to huart->Init.StopBits value */
+  tmpreg |= (uint32_t)huart->Init.StopBits;
+  
+  /* Write to USART CR2 */
+  WRITE_REG(huart->Instance->CR2, (uint32_t)tmpreg);
+
+  /*-------------------------- USART CR1 Configuration -----------------------*/
+  tmpreg = huart->Instance->CR1;
+
+  /* Clear M, PCE, PS, TE and RE bits */
+  tmpreg &= (uint32_t)~((uint32_t)(USART_CR1_M | USART_CR1_PCE | USART_CR1_PS | USART_CR1_TE | \
+                                   USART_CR1_RE | USART_CR1_OVER8));
+
+  /* Configure the UART Word Length, Parity and mode: 
+     Set the M bits according to huart->Init.WordLength value 
+     Set PCE and PS bits according to huart->Init.Parity value
+     Set TE and RE bits according to huart->Init.Mode value
+     Set OVER8 bit according to huart->Init.OverSampling value */
+  tmpreg |= (uint32_t)huart->Init.WordLength | huart->Init.Parity | huart->Init.Mode | huart->Init.OverSampling;
+  
+  /* Write to USART CR1 */
+  WRITE_REG(huart->Instance->CR1, (uint32_t)tmpreg);
+  
+  /*-------------------------- USART CR3 Configuration -----------------------*/  
+  tmpreg = huart->Instance->CR3;
+  
+  /* Clear CTSE and RTSE bits */
+  tmpreg &= (uint32_t)~((uint32_t)(USART_CR3_RTSE | USART_CR3_CTSE));
+  
+  /* Configure the UART HFC: Set CTSE and RTSE bits according to huart->Init.HwFlowCtl value */
+  tmpreg |= huart->Init.HwFlowCtl;
+  
+  /* Write to USART CR3 */
+  WRITE_REG(huart->Instance->CR3, (uint32_t)tmpreg);
+  
+  /* Check the Over Sampling */
+  if(huart->Init.OverSampling == UART_OVERSAMPLING_8)
+  {
+    /*-------------------------- USART BRR Configuration ---------------------*/
+    if((huart->Instance == USART1) || (huart->Instance == USART6))
+    {
+      huart->Instance->BRR = UART_BRR_SAMPLING8(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
+    }
+    else
+    {
+      huart->Instance->BRR = UART_BRR_SAMPLING8(HAL_RCC_GetPCLK1Freq(), huart->Init.BaudRate);
+    }
+  }
+  else
+  {
+    /*-------------------------- USART BRR Configuration ---------------------*/
+    if((huart->Instance == USART1) || (huart->Instance == USART6))
+    {
+      huart->Instance->BRR = UART_BRR_SAMPLING16(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
+    }
+    else
+    {
+      huart->Instance->BRR = UART_BRR_SAMPLING16(HAL_RCC_GetPCLK1Freq(), huart->Init.BaudRate);
+    }
+  }
+}
+
+/**
+  * @}
+  */
+
+/**
+  * @brief  Initializes the UART mode according to the specified parameters in
+  *         the UART_InitTypeDef and create the associated handle.
+  * @param  huart: pointer to a UART_HandleTypeDef structure that contains
+  *                the configuration information for the specified UART module.
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
+{
+  /* Check the UART handle allocation */
+  if(huart == NULL)
+  {
+    return HAL_ERROR;
+  }
+
+  /* Check the parameters */
+  if(huart->Init.HwFlowCtl != UART_HWCONTROL_NONE)
+  { 
+    /* The hardware flow control is available only for USART1, USART2, USART3 and USART6 */
+    assert_param(IS_UART_HWFLOW_INSTANCE(huart->Instance));
+    assert_param(IS_UART_HARDWARE_FLOW_CONTROL(huart->Init.HwFlowCtl));
+  }
+  else
+  {
+    assert_param(IS_UART_INSTANCE(huart->Instance));
+  }
+  assert_param(IS_UART_WORD_LENGTH(huart->Init.WordLength));
+  assert_param(IS_UART_OVERSAMPLING(huart->Init.OverSampling));
+  
+  if(huart->gState == HAL_UART_STATE_RESET)
+  {  
+    /* Allocate lock resource and initialize it */
+    huart->Lock = HAL_UNLOCKED;
+    /* Init the low level hardware */
+    HAL_UART_MspInit(huart);
+  }
+
+  huart->gState = HAL_UART_STATE_BUSY;
+
+  /* Disable the peripheral */
+  __HAL_UART_DISABLE(huart);
+  
+  /* Set the UART Communication parameters */
+  UART_SetConfig(huart);
+  
+  /* In asynchronous mode, the following bits must be kept cleared: 
+     - LINEN and CLKEN bits in the USART_CR2 register,
+     - SCEN, HDSEL and IREN  bits in the USART_CR3 register.*/
+  CLEAR_BIT(huart->Instance->CR2, (USART_CR2_LINEN | USART_CR2_CLKEN));
+  CLEAR_BIT(huart->Instance->CR3, (USART_CR3_SCEN | USART_CR3_HDSEL | USART_CR3_IREN));
+  
+  /* Enable the peripheral */
+  __HAL_UART_ENABLE(huart);
+  
+  /* Initialize the UART state */
+  huart->ErrorCode = HAL_UART_ERROR_NONE;
+  huart->gState= HAL_UART_STATE_READY;
+  huart->RxState= HAL_UART_STATE_READY;
+  
+  return HAL_OK;
+}
+
+void STM_EVAL_LEDInit(Led_TypeDef Led)
+{
+  GPIO_InitTypeDef  GPIO_InitStructure;
+  
+  /* Enable the GPIO_LED Clock */
+  RCC_AHB1PeriphClockCmd(GPIO_CLK[Led], ENABLE);
+
+
+  /* Configure the GPIO_LED pin */
+  GPIO_InitStructure.GPIO_Pin = GPIO_PIN[Led];
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIO_PORT[Led], &GPIO_InitStructure);
+}
+
+/**
+  * @brief  Turns selected LED On.
+  * @param  Led: Specifies the Led to be set on. 
+  *   This parameter can be one of following parameters:
+  *     @arg LED1
+  *     @arg LED2
+  *     @arg LED3
+  *     @arg LED4  
+  * @retval None
+  */
+void STM_EVAL_LEDOn(Led_TypeDef Led)
+{
+  GPIO_PORT[Led]->BSRRL = GPIO_PIN[Led];
+}
+
+/**
+  * @brief  Turns selected LED Off.
+  * @param  Led: Specifies the Led to be set off. 
+  *   This parameter can be one of following parameters:
+  *     @arg LED1
+  *     @arg LED2
+  *     @arg LED3
+  *     @arg LED4 
+  * @retval None
+  */
+void STM_EVAL_LEDOff(Led_TypeDef Led)
+{
+  GPIO_PORT[Led]->BSRRH = GPIO_PIN[Led];  
+}
+
+void rcc_init(void)
+{
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+}
+
+void gpio_init(void)
+{
+  //GPIO_InitTypeDef GPIO_InitStructure;
+  
+  /* ADC Channel 11 -> PC1
+  */
+  
+	// CH1 setup: ADC1 channel 0.
+  GPIO_InitStructure_ADC_ch1.GPIO_Pin = CH1_GPIO_PINx;
+  GPIO_InitStructure_ADC_ch1.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure_ADC_ch1.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(CH1_GPIO, &GPIO_InitStructure_ADC_ch1);
+	
+	// CH2 setup: ADC1 channel 1.
+	GPIO_InitStructure_ADC_ch2.GPIO_Pin = CH2_GPIO_PINx;
+  GPIO_InitStructure_ADC_ch2.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure_ADC_ch2.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(CH2_GPIO, &GPIO_InitStructure_ADC_ch2);
+	
+	// CH3 setup: ADC1 channel 4.
+	GPIO_InitStructure_ADC_ch3.GPIO_Pin = CH3_GPIO_PINx;
+  GPIO_InitStructure_ADC_ch3.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure_ADC_ch3.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(CH3_GPIO, &GPIO_InitStructure_ADC_ch3);
+	
+	// CH4 setup: ADC1 channel 8.
+	GPIO_InitStructure_ADC_ch4.GPIO_Pin = CH4_GPIO_PINx;
+  GPIO_InitStructure_ADC_ch4.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure_ADC_ch4.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(CH4_GPIO, &GPIO_InitStructure_ADC_ch4);
+	
+	// UART
+	GPIO_InitStructure_UART.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3;   //USART2 Tx = PA2, USART Rx = PA3
+	GPIO_InitStructure_UART.GPIO_Mode = GPIO_Mode_AF;//GPIO_Mode_OUT;
+  GPIO_InitStructure_UART.GPIO_PuPd = GPIO_PuPd_NOPULL;//GPIO_PuPd_UP;//GPIO_PuPd_NOPULL;
+  GPIO_InitStructure_UART.GPIO_Speed = GPIO_High_Speed;
+	GPIO_InitStructure_UART.GPIO_OType = GPIO_OType_PP;
+  GPIO_Init(GPIOA, &GPIO_InitStructure_UART);
+	GPIOA->AFR[0] |= (USARTx_TX_AF << 8) | (USARTx_RX_AF << 12);  // Enable alternate function to be USART
+}
+
+void dma_init(void)
+{
+	DMA_InitStructure.DMA_Channel = DMA_Channel_0;
+	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&ADC1->DR;
+	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&ADC_buffer[0];
+	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+	DMA_InitStructure.DMA_BufferSize = BUFFER_SIZE;
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//DMA_MemoryInc_Disable;//DMA_MemoryInc_Enable;
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_MemoryDataSize_Byte;//DMA_MemoryDataSize_HalfWord;
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;//DMA_MemoryDataSize_HalfWord;
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;//DMA_Mode_Normal;//DMA_Mode_Circular; //DMA_Mode_Normal;
+	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;//DMA_FIFOThreshold_HalfFull;
+	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+	DMA_Init(DMA2_Stream0, &DMA_InitStructure);
+	
+	/* Enable DMA Stream Half / Transfer Complete interrupt */
+  DMA_ITConfig(DMA2_Stream0, DMA_IT_TC, ENABLE); //DMA_IT_HT
+	
+	DMA_Cmd(DMA2_Stream0, ENABLE);
+	
+	//DMA_ITConfig
+	//DMA_IT_HT
+	//TIM_SelectOutputTrigger
+	//DMA_GetITStatus
+}
+
+void adc_init(void)
+{
+	ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
+	ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div2;
+	ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+	ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
+	ADC_CommonInit(&ADC_CommonInitStructure);
+	
+	ADC_InitStructure.ADC_Resolution = ADC_Resolution_8b;
+	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_Rising;
+	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T2_TRGO;
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+	ADC_InitStructure.ADC_NbrOfConversion = 1;
+	ADC_Init(CH1_ADCx, &ADC_InitStructure);
+	
+	ADC_RegularChannelConfig(CH1_ADCx, CH1_ADC_CHx, 1, ADC_SampleTime_15Cycles);
+	//ADC_RegularChannelConfig(CH2_ADCx, CH2_ADC_CHx, 2, ADC_SampleTime_15Cycles);
+	//ADC_RegularChannelConfig(CH3_ADCx, CH3_ADC_CHx, 3, ADC_SampleTime_15Cycles);
+	//ADC_RegularChannelConfig(CH4_ADCx, CH4_ADC_CHx, 4, ADC_SampleTime_15Cycles);
+	//ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 2, ADC_SampleTime_480Cycles);
+	//ADC_RegularChannelConfig(ADC1, ADC_Channel_5, 3, ADC_SampleTime_480Cycles);
+	//ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 4, ADC_SampleTime_480Cycles);
+	
+	/* Enable DMA request after last transfer (Single-ADC mode) */
+  ADC_DMARequestAfterLastTransferCmd(CH1_ADCx, ENABLE);
+	
+	/* Enable ADCx's DMA interface */
+	ADC_DMACmd(CH1_ADCx, ENABLE);
+
+	/* Enable ADCx */
+	ADC_Cmd(CH1_ADCx, ENABLE);
+}
+
+void tim2_init(void)
+{
+ 
+  /* Time base configuration */
+  TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+  TIM_TimeBaseStructure.TIM_Period = ((SystemCoreClock / 4) / SAMPLING_FREQ) - 1;//((SystemCoreClock / 2) / SAMPLING_FREQ) - 1; // 40 KHz, from 84 MHz TIM2CLK (ie APB1 = HCLK/4, TIM2CLK = HCLK/2)
+  TIM_TimeBaseStructure.TIM_Prescaler = 0;                      // Prescaler = TIM_Prescaler + 1; In TIM_Period, SystemCoreClock is divided by 4 rather than 2 because the prescaler = 1.  The APB1 timer clocks are x1 if prescaler = 1, other wise x2.
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;        // Divide clock by 1
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+ 
+  /* TIM2 TRGO selection */
+  TIM_SelectOutputTrigger(TIM2, TIM_TRGOSource_Update); // ADC_ExternalTrigConv_T2_TRGO
+ 
+  /* TIM2 enable counter */
+  TIM_Cmd(TIM2, ENABLE);
+}
+
+//#include "stm32f4xx.h"
+void nvic_init(void)
+{
+	/* Configure and enable ADC interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = DMA2_Stream0_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+}
+
+void DMA2_Stream0_IRQHandler(void) // Called at 1 KHz for 200 KHz sample rate, LED Toggles at 500 Hz
+{
+	int i;
+	
+  /* Test on DMA Stream Half Transfer interrupt */
+  if(DMA_GetITStatus(DMA2_Stream0, DMA_IT_HTIF0))
+  {
+    /* Clear DMA Stream Half Transfer interrupt pending bit */
+    DMA_ClearITPendingBit(DMA2_Stream0, DMA_IT_HTIF0);
+  
+    /* Turn LED3 off: Half Transfer */
+    STM_EVAL_LEDOff(LED1);
+		
+		/* Write A to UART*/
+		//USART_SendData(USARTx, 65);
+  
+    // Add code here to process first half of buffer (ping)
+		for(i = 0; i < BUFFER_SIZE / 4; i++)
+		{
+			// While the TX buffer isn't empty, do not write new data; Checking the TXE flag.
+			while(!(USARTx->SR & 0x040));
+			USART_SendData(USARTx, ADC_buffer[i]);
+		}
+  }
+  
+  /* Test on DMA Stream Transfer Complete interrupt */
+  if(DMA_GetITStatus(DMA2_Stream0, DMA_IT_TCIF0))
+  {
+    /* Clear DMA Stream Transfer Complete interrupt pending bit */
+    DMA_ClearITPendingBit(DMA2_Stream0, DMA_IT_TCIF0);
+  
+    /* Turn LED3 on: End of Transfer */
+    STM_EVAL_LEDOn(LED1);
+		
+		/* Write B to UART */
+		//USART_SendData(USARTx, 66);
+  
+    // Add code here to process second half of buffer (pong)
+		for(i = 0; i < BUFFER_SIZE / 2; i++)
+		{
+			// While the TX buffer isn't empty, do not write new data; ; Checking the TXE flag.
+			while(!(USARTx->SR & 0x040));
+			USART_SendData(USARTx, ADC_buffer[i]);
+		}
+  }
+}
+
+/*##-1- Configure the UART peripheral ######################################*/
+/* Put the USART peripheral in the Asynchronous mode (UART Mode) */
+/* UART1 configured as follows:
+    - Word Length = 8 Bits
+    - Stop Bit = One Stop bit
+    - Parity = ODD parity
+    - BaudRate = 9600 baud
+    - Hardware flow control disabled (RTS and CTS signals) */
+void uart_init(void)
+{
+	UartHandle.Instance          = USARTx;
+  
+  UartHandle.Init.BaudRate     = 9600;
+  UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
+  UartHandle.Init.StopBits     = UART_STOPBITS_1;
+  UartHandle.Init.Parity       = UART_PARITY_ODD;
+  UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+  UartHandle.Init.Mode         = UART_MODE_TX_RX;//UART_MODE_TX_RX;
+  UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+    
+  if(HAL_UART_Init(&UartHandle) != HAL_OK)
+  {
+    /* Initialization Error */
+    //Error_Handler(); 
+		while(1);
+  }
+}
+
+static void usart_init(void)
+{
+  USART_InitTypeDef USART_InitStructure;
+  
+  /* USARTx configured as follows:
+        - BaudRate = 115200 baud  
+        - Word Length = 8 Bits
+        - One Stop Bit
+        - No parity
+        - Hardware flow control disabled (RTS and CTS signals)
+        - Receive and transmit enabled
+  */
+  USART_InitStructure.USART_BaudRate = 115200;
+  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+  USART_InitStructure.USART_Parity = USART_Parity_No;
+  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+  USART_Init(USART2, &USART_InitStructure);
+	USART_Cmd(USART2, ENABLE);
+	//USART_SendData(USART1, 63);
+	//STM_EVAL_COMInit(COM1, &USART_InitStructure);
+}
+
+
+void init(void)
+{
+	rcc_init();
+	//STM_EVAL_LEDInit(LED1);
+	//STM_EVAL_LEDOn(LED1);
+	gpio_init();
+	//uart_init();
+	usart_init();
+	nvic_init();
+	tim2_init();
+	dma_init();
+	adc_init();
+}
+
+/**
+  * @brief  Main program
+  * @param  None
+  * @retval None
+  */
+int main(void)
+{ 
+
+  init();
+	STM_EVAL_LEDInit(LED1);
+	STM_EVAL_LEDOn(LED1);
+ 
+	//USART_SendData(USARTx, 63);
+	//USART_SendData(USARTx, 64);
+	//USART_SendData(USARTx, 65);
+	//USART_SendData(USARTx, 66);
+	//USART_SendData(USARTx, 67);
+	//printf("hi\n\r");
+	/* Start ADC1 Software Conversion */
+  //ADC_SoftwareStartConv(ADC1);
+	
+  /* Infinite loop */
+  while (1)
+  {
+  }
+}
+
+/**
+  * @brief  Inserts a delay time.
+  * @param  nTime: specifies the delay time length, in milliseconds.
+  * @retval None
+  */
+void Delay(__IO uint32_t nTime)
+{ 
+  uwTimingDelay = nTime;
+
+  while(uwTimingDelay != 0);
+}
+
+/**
+  * @brief  Decrements the TimingDelay variable.
+  * @param  None
+  * @retval None
+  */
+void TimingDelay_Decrement(void)
+{
+  if (uwTimingDelay != 0x00)
+  { 
+    uwTimingDelay--;
+  }
+}
+
+#ifdef  USE_FULL_ASSERT
+
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t* file, uint32_t line)
+{ 
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+
+  /* Infinite loop */
+  while (1)
+  {
+  }
+}
+#endif
+
+/**
+  * @}
+  */
+
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

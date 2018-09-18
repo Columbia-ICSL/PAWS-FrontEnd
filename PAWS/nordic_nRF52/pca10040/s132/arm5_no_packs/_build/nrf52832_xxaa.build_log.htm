@@ -1,0 +1,135 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: µVision V5.17.0.0
+Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Stephen Xia, student, LIC=----
+ 
+Tool Versions:
+Toolchain:       MDK-Lite  Version: 5.17
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 1 (build 61)
+Assembler:       Armasm.exe V5.06 update 1 (build 61)
+Linker/Locator:  ArmLink.exe V5.06 update 1 (build 61)
+Library Manager: ArmAr.exe V5.06 update 1 (build 61)
+Hex Converter:   FromElf.exe V5.06 update 1 (build 61)
+CPU DLL:         SARMCM3.DLL V5.17
+Dialog DLL:      DCM.DLL V1.13.4.0
+Target DLL:      Segger\JL2CM3.dll V2.99.16.0
+Dialog DLL:      TCM.DLL V1.14.6.0
+ 
+<h2>Project:</h2>
+C:\violet\ps\wireless_transmission\nRF5_SDK_12.0.0_12f24da\examples\ble_peripheral\SEUS_BLE_1\pca10040\s132\arm5_no_packs\ble_app_uart_pca10040_s132.uvprojx
+Project File Date:  04/09/2018
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 1 (build 61)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+Rebuild target 'nrf52832_xxaa'
+compiling bsp_btn_ble.c...
+compiling bsp.c...
+compiling main.c...
+..\..\..\main.c(294): warning:  #177-D: variable "i" was declared but never referenced
+  	uint8_t i;
+..\..\..\main.c(307): warning:  #177-D: variable "i" was declared but never referenced
+  	uint8_t i;
+..\..\..\main.c(328): warning:  #177-D: variable "err_code" was declared but never referenced
+  	  uint32_t err_code;
+..\..\..\main.c(714): warning:  #177-D: variable "i" was declared but never referenced
+  	  uint8_t i = 0;
+..\..\..\main.c(889): warning:  #177-D: variable "temp" was declared but never referenced
+  	uint8_t temp;
+..\..\..\main.c(1191): warning:  #111-D: statement is unreachable
+  			break;
+..\..\..\main.c(1427): warning:  #177-D: variable "erase_bonds" was declared but never referenced
+      bool erase_bonds;
+..\..\..\main.c(143): warning:  #177-D: variable "send_first_time" was declared but never referenced
+  static uint8_t send_first_time = 0;  // Used to make sure the first time you send it begins with the delimiter
+..\..\..\main.c(145): warning:  #177-D: variable "connection_char_desc" was declared but never referenced
+  static uint8_t connection_char_desc[4] = {70, 82, 69, 68};   // descriptor of the connection characteristic name
+..\..\..\main.c(152): warning:  #177-D: variable "start_msg" was declared but never referenced
+  static uint8_t start_msg[START_MSG_LEN] = {83, 69, 85, 83, 83};  // SEUSS
+..\..\..\main.c(153): warning:  #177-D: variable "end_msg" was declared but never referenced
+  static uint8_t end_msg[START_MSG_LEN] = {83, 69, 85, 83, 69};  // SEUSE
+..\..\..\main.c(158): warning:  #550-D: variable "running" was set but never used
+  static uint8_t running = 0;
+..\..\..\main.c(165): warning:  #177-D: variable "curr_delay" was declared but never referenced
+  static uint32_t curr_delay[4] = {0, 0, 0, 0};  // The current delay that is being sampled and averaged
+..\..\..\main.c(1319): warning:  #177-D: function "S0_toggle" was declared but never referenced
+  static void S0_toggle(void) {
+..\..\..\main.c(1331): warning:  #177-D: function "S1_toggle" was declared but never referenced
+  static void S1_toggle(void) {
+..\..\..\main.c(238): warning:  #177-D: function "custom_rx_char_add" was declared but never referenced
+  static uint32_t custom_rx_char_add(ble_nus_t * p_nus, const ble_nus_init_t * p_nus_init)
+..\..\..\main.c(305): warning:  #177-D: function "handle_handshake_start" was declared but never referenced
+  static uint32_t handle_handshake_start(void)
+..\..\..\main.c(410): warning:  #177-D: function "conn_params_init" was declared but never referenced
+  static void conn_params_init(void)
+..\..\..\main.c(804): warning:  #177-D: function "uart_init" was declared but never referenced
+  static void uart_init(void)
+..\..\..\main.c(862): warning:  #177-D: function "buttons_leds_init" was declared but never referenced
+  static void buttons_leds_init(bool * p_erase_bonds)
+..\..\..\main.c(880): warning:  #177-D: function "power_manage" was declared but never referenced
+  static void power_manage(void)
+..\..\..\main.c: 21 warnings, 0 errors
+compiling ble_advertising.c...
+compiling ble_advdata.c...
+compiling ble_conn_params.c...
+compiling ble_nus.c...
+compiling ble_srv_common.c...
+compiling nrf_drv_clock.c...
+compiling nrf_drv_common.c...
+compiling nrf_drv_gpiote.c...
+compiling nrf_drv_uart.c...
+compiling nrf_drv_pwm.c...
+compiling app_error.c...
+compiling app_button.c...
+compiling app_error_weak.c...
+compiling app_fifo.c...
+compiling app_timer.c...
+compiling app_util_platform.c...
+compiling app_uart_fifo.c...
+compiling fstorage.c...
+compiling hardfault_implementation.c...
+compiling nrf_assert.c...
+compiling retarget.c...
+assembling arm_startup_nrf52.s...
+compiling softdevice_handler.c...
+compiling system_nrf52.c...
+linking...
+Program Size: Code=12664 RO-data=1168 RW-data=388 ZI-data=9212  
+FromELF: creating hex file...
+".\_build\nrf52832_xxaa.axf" - 0 Error(s), 21 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.4.5.0.pack
+                ARM::CMSIS:CORE:4.3.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 4.3.0
+
+Package Vendor: NordicSemiconductor
+                http://developer.nordicsemi.com/nRF5_SDK/pieces/nRF_DeviceFamilyPack/NordicSemiconductor.nRF_DeviceFamilyPack.8.7.1.pack
+                NordicSemiconductor::Device:Startup:8.7.1
+                Nordic Semiconductor nRF ARM devices Device Family Pack.
+   * Component: Startup Version: 8.7.1
+
+<h2>Collection of Component include folders:</h2>
+  C:\violet\ps\wireless_transmission\nRF5_SDK_12.0.0_12f24da\examples\ble_peripheral\SEUS_BLE_1\pca10040\s132\arm5_no_packs\RTE
+  C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include
+  C:\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\8.7.1\Device\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:4.3.0
+
+   * Component: NordicSemiconductor::Device:Startup:8.7.1
+      Include file:  Device\Include\system_nrf52.h
+      Source file:   Device\Source\system_nrf52.c
+      Source file:   Device\Source\arm\arm_startup_nrf52.s
+Build Time Elapsed:  00:00:14
+</pre>
+</body>
+</html>
