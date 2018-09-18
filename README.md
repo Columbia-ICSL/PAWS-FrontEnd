@@ -1,6 +1,6 @@
 # README #
 
-This repository contains the code, pcb design, and documentation for the Pedestrian Audio Wearable System (PAWS) front-end, headset, embedded platform.
+This repository contains the code, pcb design, and documentation for the *Pedestrian Audio Wearable System (PAWS)* front-end, headset, embedded platform.
 
 PAWS is a low-power connected system for improving pedestrian safety in current and future smart cities. PAWS uses microphones embedded into a headset combined with low-power feature extraction, signal processing, and machine learning, for detecting, localizing, and providing alerts of oncoming vehicles to pedestrians in noisy environments.
 
@@ -16,5 +16,5 @@ The contents of this repository are summarized below.
 
 To learn more about PAWS, please visit our [project page](icsl.ee.columbia.edu/projects/seus), or contact us at: [stephen.xia@columbia.edu](stephen.xia@columbia.edu). 	 
 	
-This repository is part of the Pedestrian Audio Wearable System (PAWS) project of the Intelligent and Connected Systems Lab (ICSL), Columbia University.
+This repository is part of the *Pedestrian Audio Wearable System (PAWS)* project of the *Intelligent and Connected Systems Lab (ICSL)*, Columbia University.
 For more information about our latest projects, please visit our [group website](icsl.ee.columbia.edu).
