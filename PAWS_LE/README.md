@@ -13,7 +13,7 @@ The design contains the circular PAWS_LE pcb that is embedded into the headset, 
 * You can view the pcb designs and generate the gerber files for fabrication using [Altium Circuitmaker](https://circuitmaker.com/), a free pcb designing software provided by Altium. After downloading the software, create a new project and import the source files to view the design and components. 
 
 * Once the PCB is assembled, the Nordic nRF52 chip can be flashed using the firmware located in **./nordic_nRF52/pca10040/s132/arm5_no_packs/_build/nrf52832_xxaa.hex**.
-* Instructions for flashing the Nordic nRF52 (BMD-300) can be found in **./pcb./SEUS_embedded_front_Rev_0_1_documentation.pdf**. This documentation is for the PAWS pcb, rather than the PAWS_LE system, but the instructions for flashing the BLE module is the same.
+* Instructions for flashing the Nordic nRF52 (BMD-300) can be found in **./pcb./SEUS_embedded_front_Rev_0_1_documentation.pdf**. This documentation is for the PAWS pcb, rather than the PAWS_LE system, but the instructions for flashing the BLE module is the same. The procedure detailed in this file requires a [Nordic nRF52 DK](https://www.nordicsemi.com/eng/Products/Bluetooth-low-energy/nRF52-DK).
 
 # Building and Flashing Your Own Source Code
 

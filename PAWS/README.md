@@ -13,7 +13,7 @@ This folder contains the pcb files necessary to produce the PAWS PCB, the STM32f
 
 * Once the PCB is assembled, the Nordic nRF52 (BMD-300) chip can be flashed using the firmware located in **./nordic_nRF52/pca10040/s132/arm5_no_packs/_build/nrf52832_xxaa.hex**.
 * Additionally, the STM32f4 chip can be flashed using the firmware located in **./stm32f4/MDK-ARM/STM32F446xx/STM32F446xx.hex**.
-* Instructions for flashing the STM32f4 and Nordic nRF52 (BMD-300) can be found in **./pcb./SEUS_embedded_front_Rev_0_1_documentation.pdf**.
+* Instructions for flashing the STM32f4 and Nordic nRF52 (BMD-300) can be found in **./pcb./SEUS_embedded_front_Rev_0_1_documentation.pdf**. The procedure detailed in this file requires a [STM32NUCLEO](https://www.st.com/en/ecosystems/stm32-nucleo.html?querycriteria=productId=SC2003) and a [Nordic nRF52 DK](https://www.nordicsemi.com/eng/Products/Bluetooth-low-energy/nRF52-DK).
 
 # Building and Flashing Your Own Source Code
 
