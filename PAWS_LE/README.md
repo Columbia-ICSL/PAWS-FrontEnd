@@ -7,9 +7,13 @@ This folder contains the pcb files necessary to produce the PAWS LE PCB, which u
 # Reproducing the PAWS Low Energy Front-End System
 
 Fabricate the pcb according to the schematic and Altium Circuit Maker Files in **./pcb/AltiumCMFiles**.
+The design contains the circular PAWS_LE pcb that is embedded into the headset, eight MEMS microphones (only four are needed as inputs to the PAWS_LE system), and a BLE module connector/debugging board.
+The PAWS_LE system can be assembled with just four of the eight MEMS microphones and the PAWS_LE circular pcb.
 Alternatively, you can directly access the project on the Altium CircuitMaker software or your web browser [here](https://circuitmaker.com/Projects/Details/Stephen-Xia/ICSL-PS-REV-02).
+You can view the pcb designs and generate the gerber files for fabrication using [Altium Circuitmaker](https://circuitmaker.com/), a free pcb designing software provided by Altium. After downloading the software, create a new project and import the source files to view the design and components. 
 
 Once the PCB is assembled, the Nordic nRF52 chip can be flashed using the firmware located in **./nordic_nRF52/pca10040/s132/arm5_no_packs/_build/nrf52832_xxaa.hex**.
+Instructions for flashing the Nordic nRF52 (BMD-300) can be found in **./pcb./SEUS_embedded_front_Rev_0_1_documentation.pdf**. This documentation is for the PAWS pcb, rather than the PAWS_LE system, but the instructions for flashing the BLE module is the same.
 
 # Building and Flashing Your Own Source Code
 

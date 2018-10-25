@@ -6,11 +6,14 @@ This folder contains the pcb files necessary to produce the PAWS PCB, the STM32f
 
 # Reproducing the PAWS Front-End System
 
-Fabricate the pcb according to the schematic and Altium Circuit Maker Files in **./pcb/AltiumCMFiles**.
-Alternatively, you can directly access the project on the Altium CircuitMaker software or your web browser [here](https://circuitmaker.com/Projects/Details/Stephen-Xia/ICSL-PS-Combined).
+Fabricate the pcb according to the schematic and Altium Circuit Maker Files in **./pcb/PAWS_pcb**.
+The system requires four inputs; the schematic for one microphone can be found in **./pcb/MEMS_pcb**, which can be replicated.
+Alternatively, you can directly access the projects on the Altium CircuitMaker software or your web browser [here (PAWS pcb)](https://circuitmaker.com/Projects/Details/Stephen-Xia/ICSL-PS-Combined) and [here (MEMS pcb)](https://workspace.circuitmaker.com/Projects/Details/Stephen-Xia/MEMSMICV0).
+You can view the pcb designs and generate the gerber files for fabrication using [Altium Circuitmaker](https://circuitmaker.com/), a free pcb designing software provided by Altium. After downloading the software, create a new project and import the source files to view the design and components. 
 
-Once the PCB is assembled, the Nordic nRF52 chip can be flashed using the firmware located in **./nordic_nRF52/pca10040/s132/arm5_no_packs/_build/nrf52832_xxaa.hex**.
+Once the PCB is assembled, the Nordic nRF52 (BMD-300) chip can be flashed using the firmware located in **./nordic_nRF52/pca10040/s132/arm5_no_packs/_build/nrf52832_xxaa.hex**.
 Additionally, the STM32f4 chip can be flashed using the firmware located in **./stm32f4/MDK-ARM/STM32F446xx/STM32F446xx.hex**.
+Instructions for flashing the STM32f4 and Nordic nRF52 (BMD-300) can be found in **./pcb./SEUS_embedded_front_Rev_0_1_documentation.pdf**.
 
 # Building and Flashing Your Own Source Code
 

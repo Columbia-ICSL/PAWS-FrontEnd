@@ -24,7 +24,7 @@ Next, you must reproduce the PAWS front-end PCB. Details on how to do this can b
 
 # Reproducing the PAWS LE System
 
-To reproduce the PAWS LE system, you must first install the PAWS LE smartphone application; details on how to do this can be found in the PAWS-Smartphone repository.
+To reproduce the PAWS LE system, you must first install the PAWS LE smartphone application; details on how to do this can be found in the [PAWS-Smartphone repository](https://github.com/Columbia-ICSL/PAWS-Smartphone).
 
 Next, you must reproduce the PAWS LE front-end PCB. Details on how to do this can be found in the **./PAWS_LE** folder.
 
